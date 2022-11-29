@@ -1,16 +1,14 @@
 package com.ghl.sse.controller;
 
 import com.ghl.sse.emitters.SseEmitters;
+import com.ghl.sse.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -23,35 +21,21 @@ import java.time.format.DateTimeFormatter;
 @RestController
 public class NotificationController {
 
-    private final SseEmitters sseEmitters;
+    private final NotificationService notificationService;
 
 
-    @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<SseEmitter> connect() {
-        SseEmitter emitter = new SseEmitter();
-        sseEmitters.add(emitter);
-        try {
-            emitter.send(SseEmitter.event()
-                    .name("connect")
-                    .data("connected!"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return ResponseEntity.ok(emitter);
+    @GetMapping(value = "/subscribe/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter connect(@PathVariable Long id,
+                              @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
+        return notificationService.subscribe(id, lastEventId);
     }
 
-    @RequestMapping("/add")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void addEmitteer() throws IOException {
-
-        SseEmitter emitter = new SseEmitter();
-        sseEmitters.add(emitter);
-
-        emitter.send(SseEmitter.event()
-                .name("메세지입니다 + " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                .data("connected!"));
-    }
+//    @GetMapping("/send")
+//    @ResponseStatus(HttpStatus.CREATED)
+//    public void send(@RequestParam String content, String url) throws IOException {
+//
+//        notificationService.send(content, url);
+//    }
 
     @RequestMapping("/index")
     public ModelAndView index(ModelAndView model) {
