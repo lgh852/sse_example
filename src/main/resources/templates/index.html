@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"
+            integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-sse@0.1.5/jquery.sse.min.js"></script>
+    <script>
+
+        var evtSource = new EventSource("/connect", {withCredentials: true});
+
+
+        evtSource.onmessage = function (e) {
+            var newElement = document.createElement("li");
+            var eventList = document.getElementById('list');
+
+            newElement.innerHTML = "message: " + e.data;
+            alert(e.data)
+            eventList.appendChild(newElement);
+
+        }
+
+
+    </script>
+</head>
+<body style="margin: 0 auto; padding: 0">
+
+<div style="margin: auto;width: 40%;margin-top: 300px;text-align: center;border: 1px solid;padding: 20px;">
+    <p>noti</p>
+    <div id="content">
+
+    </div>
+</div>
+
+
+</body>
+</html>
